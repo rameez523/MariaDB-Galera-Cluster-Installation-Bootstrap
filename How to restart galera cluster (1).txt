@@ -1,0 +1,26 @@
+
+MariaDB Galera Cluster:
+Solution 1:
+1) I've changed safe_to_bootstrap parameter to 1 on one of the node in the file /var/lib/mysql/grastate.dat:
+
+safe_to_bootstrap: 1
+
+2) After that I killed all mysql processes:
+
+killall -KILL mysql mysqld_safe mysqld mysql-systemd
+
+3) And started a new cluster node1:
+
+galera_new_cluster
+
+4) All other nodes I reconnected to the new one:
+
+systemctl restart mariadb
+
+
+note:
+
+You can bootstrap the surviving node to form a new Primary Component, using the pc.boostrap wsrep Provider option. To do so, log into the database client and run the following command:
+
+  SET GLOBAL wsrep_provider_options='pc.bootstrap=YES';
+

@@ -1,0 +1,65 @@
+root@sng-db1:~# cat /etc/maxscale.cnf
+[maxscale]
+threads=auto
+
+# List of servers in the Cluster
+[Galera-1]
+type=server
+address=10.10.43.117
+port=3306
+protocol=MariaDBBackend
+priority=1
+
+[Galera-2]
+type=server
+address=10.10.43.118
+port=3306
+protocol=MariaDBBackend
+priority=2
+
+[Galera-3]
+type=server
+address=10.10.43.119
+port=3306
+protocol=MariaDBBackend
+priority=3
+
+# Monitoring for the Galera server nodes
+[Galera-Monitor]
+type=monitor
+module=galeramon
+servers=Galera-1,Galera-2,Galera-3
+user=maxscale
+password=maxscale
+
+monitor_interval=2000
+use_priority=true
+available_when_donor=true
+
+# This will ensure that the current master remains the master as long as it's up and dunning
+disable_master_failback=true
+backend_connect_timeout=3s
+backend_write_timeout=3s
+backend_read_timeout=3s
+
+# Galera Read/Write Splitter service
+[Galera-RW-Service]
+type=service
+router=readwritesplit
+servers=Galera-1,Galera-2,Galera-3
+user=maxscale
+password=maxscale
+master_reconnection=true
+transaction_replay=true
+#max_connections=5000 added new entry 30-09-2021
+max_connections=5000
+#transaction_replay_retry_on_deadlock=true
+master_failure_mode=error_on_write
+slave_selection_criteria=ADAPTIVE_ROUTING
+
+# Galera cluster listener
+[Galera-Listener]
+type=listener
+service=Galera-RW-Service
+protocol=MariaDBClient
+port=3307

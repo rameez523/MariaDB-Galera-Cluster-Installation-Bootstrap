@@ -1,0 +1,17 @@
+root@sng-db1:~# cat /etc/mysql/mariadb.conf.d/galera.cnf 
+[mysqld]
+bind-address=0.0.0.0
+default_storage_engine=InnoDB
+binlog_format=row
+innodb_autoinc_lock_mode=2
+
+# Galera cluster configuration
+wsrep_on=ON
+wsrep_provider=/usr/lib/galera/libgalera_smm.so
+wsrep_cluster_address="gcomm://10.10.43.117,10.10.43.118,10.10.43.119"
+wsrep_cluster_name="mariadb-cluster"
+wsrep_sst_method=rsync
+
+# Cluster node configuration
+wsrep_node_address="10.10.43.117"
+wsrep_node_name="sng-db1"
